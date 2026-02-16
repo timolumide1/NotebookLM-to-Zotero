@@ -1,0 +1,168 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <title>NotebookLM to Zotero - Settings</title>
+  <link rel="stylesheet" href="settings.css">
+</head>
+<body>
+  <div class="container">
+    <header>
+      <h1>⚙️ Settings</h1>
+      <p class="subtitle">Configure your Zotero API connection</p>
+    </header>
+
+    <main>
+      <!-- API Configuration Section -->
+      <section class="settings-section">
+        <h2>🔗 Zotero API Configuration</h2>
+        <p class="info">
+          To export directly to Zotero, you need to configure your API credentials.
+          <a href="https://www.zotero.org/settings/keys" target="_blank">Get your API key here →</a>
+        </p>
+
+        <div class="form-group">
+          <label for="apiKey">
+            API Key
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="password" 
+            id="apiKey" 
+            placeholder="Enter your Zotero API key"
+            autocomplete="off"
+          >
+          <button id="toggleApiKey" class="btn-small">Show</button>
+          <p class="help-text">
+            Your API key is stored locally and never shared.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="libraryType">Library Type</label>
+          <select id="libraryType">
+            <option value="user">Personal Library</option>
+            <option value="group">Group Library</option>
+          </select>
+        </div>
+
+        <div class="form-group" id="userIdGroup">
+          <label for="userId">
+            User ID
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="userId" 
+            placeholder="Your Zotero User ID (numbers only)"
+          >
+          <p class="help-text">
+            Find this at <a href="https://www.zotero.org/settings/keys" target="_blank">zotero.org/settings/keys</a> 
+            (under "Your userID for use in API calls")
+          </p>
+        </div>
+
+        <div class="form-group hidden" id="groupIdGroup">
+          <label for="groupId">
+            Group ID
+            <span class="required">*</span>
+          </label>
+          <input 
+            type="text" 
+            id="groupId" 
+            placeholder="Your Zotero Group ID"
+          >
+          <p class="help-text">
+            Find this in your group's library URL: zotero.org/groups/[GROUP_ID]/
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label>
+            <input type="checkbox" id="autoCreateCollections" checked>
+            Auto-create collections for each notebook
+          </label>
+          <p class="help-text">
+            When enabled, creates a collection named after your NotebookLM notebook.
+          </p>
+        </div>
+
+        <div class="form-group">
+          <label for="duplicateHandling">Duplicate Handling</label>
+          <select id="duplicateHandling">
+            <option value="skip">Skip duplicates</option>
+            <option value="update">Update existing items</option>
+            <option value="ask">Ask each time</option>
+          </select>
+          <p class="help-text">
+            How to handle items that already exist in your Zotero library.
+          </p>
+        </div>
+
+        <div class="button-group">
+          <button id="saveSettings" class="btn-primary">Save Settings</button>
+          <button id="testConnection" class="btn-secondary">Test Connection</button>
+          <button id="clearSettings" class="btn-danger">Clear Settings</button>
+        </div>
+
+        <div id="statusMessage" class="status-message hidden"></div>
+      </section>
+
+      <!-- How to Get API Key Section -->
+      <section class="settings-section info-section">
+        <h2>📚 How to Get Your Zotero API Key</h2>
+        <ol class="steps">
+          <li>Go to <a href="https://www.zotero.org/settings/keys" target="_blank">zotero.org/settings/keys</a></li>
+          <li>Click "Create new private key"</li>
+          <li>Give it a name (e.g., "NotebookLM Extension")</li>
+          <li>Set permissions:
+            <ul>
+              <li>✅ Allow library access</li>
+              <li>✅ Allow write access</li>
+            </ul>
+          </li>
+          <li>Click "Save Key"</li>
+          <li>Copy the key and paste it above</li>
+          <li>Note your User ID from the same page</li>
+        </ol>
+      </section>
+
+      <!-- Current Configuration Status -->
+      <section class="settings-section status-section">
+        <h2>📊 Current Status</h2>
+        <div id="configStatus">
+          <p class="status-item">
+            <strong>API Configured:</strong> 
+            <span id="apiConfigured" class="status-no">❌ Not configured</span>
+          </p>
+          <p class="status-item">
+            <strong>Library Type:</strong> 
+            <span id="currentLibraryType">—</span>
+          </p>
+          <p class="status-item">
+            <strong>Library ID:</strong> 
+            <span id="currentLibraryId">—</span>
+          </p>
+          <p class="status-item">
+            <strong>Auto-create Collections:</strong> 
+            <span id="currentAutoCreate">—</span>
+          </p>
+          <p class="status-item">
+            <strong>Last Tested:</strong> 
+            <span id="lastTested">Never</span>
+          </p>
+        </div>
+      </section>
+    </main>
+
+    <footer>
+      <p>
+        <a href="../popup/popup.html" class="back-link">← Back to Export</a>
+      </p>
+      <p class="version">NotebookLM to Zotero v1.5.0</p>
+    </footer>
+  </div>
+
+  <script src="settings.js"></script>
+</body>
+</html>

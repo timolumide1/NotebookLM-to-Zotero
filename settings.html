@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zotero API Settings - NotebookLM to Zotero</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      overflow: hidden;
+    }
+    
+    .header {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+      padding: 30px;
+      text-align: center;
+    }
+    
+    .header h1 {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+    
+    .header p {
+      opacity: 0.9;
+      font-size: 14px;
+    }
+    
+    .content {
+      padding: 30px;
+    }
+    
+    .info-box {
+      background: #f0f4ff;
+      border-left: 4px solid #667eea;
+      padding: 15px;
+      margin-bottom: 25px;
+      border-radius: 4px;
+    }
+    
+    .info-box h3 {
+      color: #667eea;
+      font-size: 14px;
+      margin-bottom: 8px;
+    }
+    
+    .info-box p {
+      font-size: 13px;
+      line-height: 1.5;
+      color: #555;
+    }
+    
+    .info-box a {
+      color: #667eea;
+      text-decoration: none;
+      font-weight: 500;
+    }
+    
+    .info-box a:hover {
+      text-decoration: underline;
+    }
+    
+    .form-group {
+      margin-bottom: 20px;
+    }
+    
+    label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 8px;
+      color: #333;
+      font-size: 14px;
+    }
+    
+    input[type="text"],
+    input[type="password"],
+    select {
+      width: 100%;
+      padding: 12px;
+      border: 2px solid #e0e0e0;
+      border-radius: 6px;
+      font-size: 14px;
+      transition: border-color 0.3s;
+    }
+    
+    input:focus,
+    select:focus {
+      outline: none;
+      border-color: #667eea;
+    }
+    
+    .help-text {
+      font-size: 12px;
+      color: #666;
+      margin-top: 6px;
+    }
+    
+    .button-group {
+      display: flex;
+      gap: 10px;
+      margin-top: 25px;
+    }
+    
+    button {
+      flex: 1;
+      padding: 12px 20px;
+      border: none;
+      border-radius: 6px;
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s;
+    }
+    
+    .btn-primary {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(102, 126, 234, 0.4);
+    }
+    
+    .btn-secondary {
+      background: white;
+      color: #667eea;
+      border: 2px solid #667eea;
+    }
+    
+    .btn-secondary:hover {
+      background: #f0f4ff;
+    }
+    
+    .btn-test {
+      background: #10b981;
+      color: white;
+    }
+    
+    .btn-test:hover {
+      background: #059669;
+    }
+    
+    #status {
+      margin-top: 15px;
+      padding: 12px;
+      border-radius: 6px;
+      font-size: 14px;
+      display: none;
+    }
+    
+    #status.success {
+      background: #d1fae5;
+      color: #065f46;
+      border: 1px solid #6ee7b7;
+    }
+    
+    #status.error {
+      background: #fee2e2;
+      color: #991b1b;
+      border: 1px solid #fca5a5;
+    }
+    
+    #status.info {
+      background: #dbeafe;
+      color: #1e40af;
+      border: 1px solid #93c5fd;
+    }
+    
+    .toggle-password {
+      position: relative;
+    }
+    
+    .toggle-password button {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: #667eea;
+      cursor: pointer;
+      font-size: 12px;
+      padding: 4px 8px;
+    }
+    
+    .steps {
+      margin-top: 30px;
+      padding-top: 30px;
+      border-top: 2px solid #f0f0f0;
+    }
+    
+    .steps h3 {
+      color: #333;
+      margin-bottom: 15px;
+      font-size: 16px;
+    }
+    
+    .step {
+      margin-bottom: 15px;
+      padding-left: 30px;
+      position: relative;
+    }
+    
+    .step::before {
+      content: attr(data-step);
+      position: absolute;
+      left: 0;
+      top: 0;
+      width: 20px;
+      height: 20px;
+      background: #667eea;
+      color: white;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: bold;
+    }
+    
+    .step p {
+      font-size: 13px;
+      line-height: 1.6;
+      color: #555;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>⚙️ Zotero API Settings</h1>
+      <p>Configure direct export to your Zotero library</p>
+    </div>
+    
+    <div class="content">
+      <div class="info-box">
+        <h3>📚 What is This?</h3>
+        <p>
+          Connect your Zotero account to export sources directly from NotebookLM to your Zotero library with one click!
+          No more manual import steps.
+        </p>
+      </div>
+      
+      <form id="settingsForm">
+        <div class="form-group">
+          <label for="apiKey">Zotero API Key *</label>
+          <div class="toggle-password">
+            <input 
+              type="password" 
+              id="apiKey" 
+              placeholder="Enter your Zotero API key"
+              required
+            >
+            <button type="button" id="toggleApiKey">Show</button>
+          </div>
+          <div class="help-text">
+            Get your API key from 
+            <a href="https://www.zotero.org/settings/keys" target="_blank">
+              zotero.org/settings/keys
+            </a>
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="userID">User ID *</label>
+          <input 
+            type="text" 
+            id="userID" 
+            placeholder="Enter your Zotero User ID (numbers only)"
+            pattern="[0-9]+"
+            required
+          >
+          <div class="help-text">
+            Find your User ID on 
+            <a href="https://www.zotero.org/settings/keys" target="_blank">
+              the same page as your API key
+            </a>
+            (it's a number like "123456")
+          </div>
+        </div>
+        
+        <div class="form-group">
+          <label for="libraryType">Library Type</label>
+          <select id="libraryType">
+            <option value="user">Personal Library</option>
+            <option value="group">Group Library</option>
+          </select>
+          <div class="help-text">
+            Choose "Personal Library" for your own library, or "Group Library" if exporting to a shared group
+          </div>
+        </div>
+        
+        <div class="button-group">
+          <button type="button" id="testBtn" class="btn-test">
+            🔗 Test Connection
+          </button>
+          <button type="submit" class="btn-primary">
+            💾 Save Settings
+          </button>
+        </div>
+        
+        <button type="button" id="closeBtn" class="btn-secondary" style="width: 100%; margin-top: 10px;">
+          ← Back to Extension
+        </button>
+      </form>
+      
+      <div id="status"></div>
+      
+      <div class="steps">
+        <h3>📖 How to Get Your Zotero API Key:</h3>
+        
+        <div class="step" data-step="1">
+          <p>
+            Go to <strong><a href="https://www.zotero.org/settings/keys" target="_blank">zotero.org/settings/keys</a></strong>
+          </p>
+        </div>
+        
+        <div class="step" data-step="2">
+          <p>
+            Click <strong>"Create new private key"</strong>
+          </p>
+        </div>
+        
+        <div class="step" data-step="3">
+          <p>
+            Give it a name like <strong>"NotebookLM Extension"</strong>
+          </p>
+        </div>
+        
+        <div class="step" data-step="4">
+          <p>
+            Enable these permissions:
+            <br>• Allow library access: <strong>Read/Write</strong>
+            <br>• Allow notes access: <strong>Read/Write</strong>
+          </p>
+        </div>
+        
+        <div class="step" data-step="5">
+          <p>
+            Click <strong>"Save Key"</strong> and copy both:
+            <br>• The API Key (long string of letters/numbers)
+            <br>• Your User ID (number shown at top of page)
+          </p>
+        </div>
+        
+        <div class="step" data-step="6">
+          <p>
+            Paste them in the form above and click <strong>"Test Connection"</strong> to verify!
+          </p>
+        </div>
+      </div>
+    </div>
+  </div>
+  
+  <script src="zotero-api.js"></script>
+  <script src="settings.js"></script>
+</body>
+</html>

@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>NotebookLM to Zotero</title>
+  <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+  <div class="container">
+    <!-- Header -->
+    <div class="header">
+      <div class="header-top">
+        <h1>NotebookLM to Zotero</h1>
+        <a href="../settings/settings.html" class="settings-link" title="Settings">⚙️</a>
+      </div>
+      <p class="subtitle">Export your sources with one click</p>
+    </div>
+
+    <!-- Main Content -->
+    <div id="content" class="content">
+      <!-- Loading State -->
+      <div id="loading" class="state-box" style="display: none;">
+        <div class="spinner"></div>
+        <p>Extracting sources...</p>
+      </div>
+
+      <!-- Ready State -->
+      <div id="ready" class="state-box">
+        <div class="notebook-info">
+          <h2 id="notebookName">Loading notebook...</h2>
+          <div class="source-stats" id="sourceStats" style="display: none;">
+            <div class="stat-item">
+              <span class="stat-label">Total Sources:</span>
+              <span class="stat-value" id="totalCount">0</span>
+            </div>
+            <div class="stat-breakdown" id="breakdown"></div>
+          </div>
+        </div>
+
+        <button id="exportBtn" class="export-button" disabled>
+          <span class="button-text">Quick Export (RIS)</span>
+          <span class="button-icon">📥</span>
+        </button>
+        
+        <button id="enrichExportBtn" class="export-button enrich-button" disabled>
+          <span class="button-text">Enriched Export (RIS)</span>
+          <span class="button-icon">🔍</span>
+        </button>
+        
+        <button id="zoteroExportBtn" class="export-button zotero-button" disabled>
+          <span class="button-text">Export to Zotero Directly</span>
+          <span class="button-icon">🚀</span>
+        </button>
+
+        <p class="help-text">
+          <strong>Quick (RIS):</strong> Export titles only (instant)<br>
+          <strong>Enriched (RIS):</strong> Add authors, DOI, abstract, etc. (~3-5 min)<br>
+          <strong>Direct to Zotero:</strong> One-click export to your Zotero library (requires <a href="../settings/settings.html">API setup</a>)
+        </p>
+      </div>
+
+      <!-- Success State -->
+      <div id="success" class="state-box" style="display: none;">
+        <div class="success-icon">✓</div>
+        <h2>Export Successful!</h2>
+        <p class="success-message" id="successMessage"></p>
+        <div class="next-steps">
+          <h3>Next Steps:</h3>
+          <ol>
+            <li>Open Zotero</li>
+            <li>Go to <strong>File → Import</strong></li>
+            <li>Select your downloaded RIS file</li>
+            <li>Your sources will be imported!</li>
+          </ol>
+        </div>
+        <button id="exportAgain" class="secondary-button">Export Another Notebook</button>
+      </div>
+
+      <!-- Error State -->
+      <div id="error" class="state-box" style="display: none;">
+        <div class="error-icon">⚠</div>
+        <h2>Export Failed</h2>
+        <p class="error-message" id="errorMessage"></p>
+        <div class="error-details">
+          <h3>Troubleshooting:</h3>
+          <ul>
+            <li>Make sure you're on a NotebookLM notebook page</li>
+            <li>Ensure the notebook has at least one source</li>
+            <li>Try refreshing the page and clicking export again</li>
+          </ul>
+        </div>
+        <button id="tryAgain" class="secondary-button">Try Again</button>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer">
+      <p>Made for researchers and students</p>
+    </div>
+  </div>
+
+  <!-- Enrichment Progress Modal -->
+  <div id="enrichModal" class="modal" style="display: none;">
+    <div class="modal-overlay"></div>
+    <div class="modal-content">
+      <h2>Enriching Metadata...</h2>
+      <div class="progress-container">
+        <div class="progress-bar">
+          <div id="progressFill" class="progress-fill"></div>
+        </div>
+        <p id="progressText" class="progress-text">Initializing...</p>
+      </div>
+      
+      <div id="progressLog" class="progress-log"></div>
+      
+      <div id="progressSummary" class="progress-summary" style="display: none;">
+        <h3>Enrichment Complete!</h3>
+        <div class="summary-stats">
+          <div class="stat-item success-stat">
+            <span class="stat-icon">✓</span>
+            <span class="stat-label">Full metadata:</span>
+            <span id="statSuccess" class="stat-value">0</span>
+          </div>
+          <div class="stat-item partial-stat">
+            <span class="stat-icon">⚠</span>
+            <span class="stat-label">Partial metadata:</span>
+            <span id="statPartial" class="stat-value">0</span>
+          </div>
+          <div class="stat-item failed-stat">
+            <span class="stat-icon">✗</span>
+            <span class="stat-label">No metadata found:</span>
+            <span id="statFailed" class="stat-value">0</span>
+          </div>
+        </div>
+        <button id="closeModal" class="export-button">Download Enriched RIS File</button>
+      </div>
+    </div>
+    
+    <!-- Zotero Export Progress Modal -->
+    <div id="zoteroModal" class="modal" style="display: none;">
+      <div class="modal-content zotero-modal-content">
+        <h2>🚀 Exporting to Zotero</h2>
+        
+        <div id="zoteroProgress" class="zotero-progress">
+          <div class="progress-step" id="stepConfig">
+            <span class="step-icon">⚙️</span>
+            <span class="step-text">Checking configuration...</span>
+            <span class="step-status"></span>
+          </div>
+          <div class="progress-step" id="stepCollection">
+            <span class="step-icon">📁</span>
+            <span class="step-text">Creating collection...</span>
+            <span class="step-status"></span>
+          </div>
+          <div class="progress-step" id="stepProcessing">
+            <span class="step-icon">📚</span>
+            <span class="step-text">Processing sources...</span>
+            <span class="step-status"></span>
+          </div>
+          <div class="progress-step" id="stepConversations">
+            <span class="step-icon">💬</span>
+            <span class="step-text">Adding conversations...</span>
+            <span class="step-status"></span>
+          </div>
+        </div>
+        
+        <div id="zoteroSummary" class="zotero-summary" style="display: none;">
+          <h3>✅ Export Complete!</h3>
+          <div class="summary-stats">
+            <div class="stat-item success-stat">
+              <span class="stat-icon">✓</span>
+              <span class="stat-label">Created:</span>
+              <span id="zoteroCreated" class="stat-value">0</span>
+            </div>
+            <div class="stat-item partial-stat">
+              <span class="stat-icon">⏭</span>
+              <span class="stat-label">Skipped (duplicates):</span>
+              <span id="zoteroSkipped" class="stat-value">0</span>
+            </div>
+            <div class="stat-item failed-stat">
+              <span class="stat-icon">✗</span>
+              <span class="stat-label">Failed:</span>
+              <span id="zoteroFailed" class="stat-value">0</span>
+            </div>
+          </div>
+          <p class="zotero-message">Your sources have been added to your Zotero library!</p>
+          <button id="closeZoteroModal" class="export-button">Done</button>
+        </div>
+        
+        <div id="zoteroError" class="zotero-error" style="display: none;">
+          <h3>❌ Export Failed</h3>
+          <p id="zoteroErrorMessage" class="error-message"></p>
+          <button id="closeZoteroError" class="secondary-button">Close</button>
+          <a href="../settings/settings.html" class="settings-button">Go to Settings</a>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="enrichment.js"></script>
+  <script src="metadata-extractor.js"></script>
+  <script src="zotero-api.js"></script>
+  <script src="popup.js"></script>
+</body>
+</html>

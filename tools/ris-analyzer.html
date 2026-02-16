@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RIS File Analyzer</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      background: linear-gradient(135deg, #354F6D 0%, #4279BB 100%);
+      min-height: 100vh;
+      padding: 20px;
+    }
+    
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 12px;
+      padding: 40px;
+      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+    }
+    
+    h1 {
+      color: #354F6D;
+      margin-bottom: 10px;
+      font-size: 28px;
+    }
+    
+    .subtitle {
+      color: #666;
+      margin-bottom: 30px;
+      font-size: 14px;
+    }
+    
+    .upload-area {
+      border: 3px dashed #4279BB;
+      border-radius: 12px;
+      padding: 40px;
+      text-align: center;
+      background: #f8f9fa;
+      cursor: pointer;
+      transition: all 0.3s;
+      margin-bottom: 30px;
+    }
+    
+    .upload-area:hover {
+      border-color: #F28E14;
+      background: #fff7ed;
+    }
+    
+    .upload-area.dragover {
+      border-color: #F28E14;
+      background: #fff7ed;
+      transform: scale(1.02);
+    }
+    
+    .upload-icon {
+      font-size: 48px;
+      margin-bottom: 15px;
+    }
+    
+    input[type="file"] {
+      display: none;
+    }
+    
+    .btn {
+      background: linear-gradient(135deg, #4279BB 0%, #F28E14 100%);
+      color: white;
+      border: none;
+      padding: 12px 30px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 16px;
+      font-weight: 600;
+      transition: transform 0.2s;
+    }
+    
+    .btn:hover {
+      transform: translateY(-2px);
+    }
+    
+    .results {
+      display: none;
+      margin-top: 30px;
+    }
+    
+    .stat-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 20px;
+      margin-bottom: 30px;
+    }
+    
+    .stat-card {
+      background: #f8f9fa;
+      padding: 20px;
+      border-radius: 8px;
+      border-left: 4px solid #4279BB;
+    }
+    
+    .stat-value {
+      font-size: 32px;
+      font-weight: bold;
+      color: #354F6D;
+      margin-bottom: 5px;
+    }
+    
+    .stat-label {
+      color: #666;
+      font-size: 14px;
+    }
+    
+    .entry-list {
+      max-height: 400px;
+      overflow-y: auto;
+      border: 1px solid #ddd;
+      border-radius: 8px;
+      padding: 20px;
+      background: #f8f9fa;
+    }
+    
+    .entry {
+      background: white;
+      padding: 15px;
+      margin-bottom: 10px;
+      border-radius: 6px;
+      border-left: 3px solid #4279BB;
+    }
+    
+    .entry-title {
+      font-weight: 600;
+      color: #354F6D;
+      margin-bottom: 5px;
+    }
+    
+    .entry-meta {
+      font-size: 12px;
+      color: #666;
+    }
+    
+    .entry-url {
+      font-size: 11px;
+      color: #4279BB;
+      word-break: break-all;
+      margin-top: 5px;
+    }
+    
+    .warning {
+      background: #fff3cd;
+      border-left: 4px solid #ffc107;
+      padding: 15px;
+      border-radius: 6px;
+      margin: 20px 0;
+    }
+    
+    .warning-title {
+      font-weight: bold;
+      color: #856404;
+      margin-bottom: 5px;
+    }
+    
+    .issue-list {
+      list-style: none;
+      padding-left: 20px;
+    }
+    
+    .issue-list li {
+      color: #856404;
+      margin: 5px 0;
+      position: relative;
+    }
+    
+    .issue-list li:before {
+      content: "⚠️";
+      position: absolute;
+      left: -20px;
+    }
+    
+    h2 {
+      color: #354F6D;
+      margin-top: 30px;
+      margin-bottom: 15px;
+      font-size: 20px;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>🔍 RIS File Analyzer</h1>
+    <p class="subtitle">Upload your exported RIS file to analyze its contents and diagnose issues</p>
+    
+    <div class="upload-area" id="uploadArea">
+      <div class="upload-icon">📄</div>
+      <p style="margin-bottom: 15px; color: #354F6D; font-weight: 600;">
+        Drop your RIS file here or click to browse
+      </p>
+      <button class="btn" onclick="document.getElementById('fileInput').click()">
+        Choose File
+      </button>
+      <input type="file" id="fileInput" accept=".ris,.txt" onchange="handleFileSelect(event)">
+    </div>
+    
+    <div class="results" id="results">
+      <h2>📊 Analysis Results</h2>
+      
+      <div class="stat-grid">
+        <div class="stat-card">
+          <div class="stat-value" id="totalEntries">0</div>
+          <div class="stat-label">Total Entries</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="uniqueTitles">0</div>
+          <div class="stat-label">Unique Titles</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="duplicates">0</div>
+          <div class="stat-label">Potential Duplicates</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-value" id="withURLs">0</div>
+          <div class="stat-label">Entries with URLs</div>
+        </div>
+      </div>
+      
+      <div id="warnings"></div>
+      
+      <h2>📋 Entries in RIS File</h2>
+      <div class="entry-list" id="entryList"></div>
+    </div>
+  </div>
+  
+  <script>
+    const uploadArea = document.getElementById('uploadArea');
+    const fileInput = document.getElementById('fileInput');
+    
+    // Drag and drop
+    uploadArea.addEventListener('dragover', (e) => {
+      e.preventDefault();
+      uploadArea.classList.add('dragover');
+    });
+    
+    uploadArea.addEventListener('dragleave', () => {
+      uploadArea.classList.remove('dragover');
+    });
+    
+    uploadArea.addEventListener('drop', (e) => {
+      e.preventDefault();
+      uploadArea.classList.remove('dragover');
+      const file = e.dataTransfer.files[0];
+      if (file) {
+        analyzeFile(file);
+      }
+    });
+    
+    uploadArea.addEventListener('click', () => {
+      fileInput.click();
+    });
+    
+    function handleFileSelect(event) {
+      const file = event.target.files[0];
+      if (file) {
+        analyzeFile(file);
+      }
+    }
+    
+    function analyzeFile(file) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const content = e.target.result;
+        parseAndDisplay(content);
+      };
+      reader.readAsText(file);
+    }
+    
+    function parseAndDisplay(risContent) {
+      // Parse RIS entries
+      const entries = [];
+      const lines = risContent.split('\n');
+      let currentEntry = {};
+      
+      for (const line of lines) {
+        const trimmed = line.trim();
+        
+        if (trimmed.startsWith('TY  -')) {
+          if (currentEntry.title) {
+            entries.push({...currentEntry});
+          }
+          currentEntry = { type: trimmed.substring(6).trim() };
+        }
+        else if (trimmed.startsWith('TI  -')) {
+          currentEntry.title = trimmed.substring(6).trim();
+        }
+        else if (trimmed.startsWith('UR  -')) {
+          currentEntry.url = trimmed.substring(6).trim();
+        }
+        else if (trimmed.startsWith('PY  -')) {
+          currentEntry.year = trimmed.substring(6).trim();
+        }
+        else if (trimmed.startsWith('AB  -')) {
+          currentEntry.abstract = trimmed.substring(6).trim();
+        }
+        else if (trimmed.startsWith('ER  -')) {
+          if (currentEntry.title) {
+            entries.push({...currentEntry});
+            currentEntry = {};
+          }
+        }
+      }
+      
+      // Analyze
+      const uniqueTitles = new Set(entries.map(e => e.title?.toLowerCase()));
+      const duplicates = entries.length - uniqueTitles.size;
+      const withURLs = entries.filter(e => e.url).length;
+      
+      // Display stats
+      document.getElementById('totalEntries').textContent = entries.length;
+      document.getElementById('uniqueTitles').textContent = uniqueTitles.size;
+      document.getElementById('duplicates').textContent = duplicates;
+      document.getElementById('withURLs').textContent = withURLs;
+      
+      // Check for issues
+      const warnings = [];
+      if (duplicates > 0) {
+        warnings.push(`Found ${duplicates} duplicate entries (same title)`);
+      }
+      if (withURLs < entries.length * 0.5) {
+        warnings.push(`Only ${withURLs} out of ${entries.length} entries have URLs`);
+      }
+      if (entries.length === 0) {
+        warnings.push('No entries found in RIS file');
+      }
+      
+      // Display warnings
+      const warningsDiv = document.getElementById('warnings');
+      if (warnings.length > 0) {
+        warningsDiv.innerHTML = `
+          <div class="warning">
+            <div class="warning-title">⚠️ Issues Detected</div>
+            <ul class="issue-list">
+              ${warnings.map(w => `<li>${w}</li>`).join('')}
+            </ul>
+          </div>
+        `;
+      } else {
+        warningsDiv.innerHTML = '';
+      }
+      
+      // Display entries
+      const entryList = document.getElementById('entryList');
+      entryList.innerHTML = entries.slice(0, 50).map((entry, i) => `
+        <div class="entry">
+          <div class="entry-title">${i + 1}. ${entry.title || 'Untitled'}</div>
+          <div class="entry-meta">
+            Type: ${entry.type || 'Unknown'} | 
+            Year: ${entry.year || 'N/A'}
+          </div>
+          ${entry.url ? `<div class="entry-url">🔗 ${entry.url}</div>` : ''}
+        </div>
+      `).join('');
+      
+      if (entries.length > 50) {
+        entryList.innerHTML += `<div style="text-align: center; padding: 20px; color: #666;">
+          ... and ${entries.length - 50} more entries
+        </div>`;
+      }
+      
+      // Show results
+      document.getElementById('results').style.display = 'block';
+    }
+  </script>
+</body>
+</html>
