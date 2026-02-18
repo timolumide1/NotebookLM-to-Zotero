@@ -1,6 +1,7 @@
 # NotebookLM to Zotero - Chrome Extension
-
-Export your NotebookLM sources to Zotero with one click. Perfect for students and researchers managing hundreds of sources.
+[![Chrome Web Store](https://img.shields.io/chrome-web-store/v/hclfbmkbjpilkonccfnohilpcbkpkpof)](https://chrome.google.com/webstore/detail/notebooklm-to-zotero/hclfbmkbjpilkonccfnohilpcbkpkpof)
+[![Users](https://img.shields.io/chrome-web-store/users/hclfbmkbjpilkonccfnohilpcbkpkpof)](https://chrome.google.com/webstore/detail/notebooklm-to-zotero/hclfbmkbjpilkonccfnohilpcbkpkpof)
+```
 
 ## Features
 
